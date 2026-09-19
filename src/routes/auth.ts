@@ -9,6 +9,9 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
+// Resend's shared onboarding domain — no DNS verification needed for MVP.
+// Replace with a verified domain (e.g. noreply@crawlguard.dev) once DNS is set up.
+const FROM_EMAIL = process.env.FROM_EMAIL ?? "CrawlGuard <onboarding@resend.dev>";
 
 export async function authRoutes(app: FastifyInstance) {
   // GET /auth/login — login page
@@ -60,7 +63,7 @@ export async function authRoutes(app: FastifyInstance) {
     // Send email
     try {
       await resend.emails.send({
-        from: "CrawlGuard <noreply@crawlguard.dev>",
+        from: FROM_EMAIL,
         to: normalizedEmail,
         subject: "Your CrawlGuard login link",
         html: `

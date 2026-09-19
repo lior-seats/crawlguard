@@ -8,7 +8,9 @@ import { eq, and, gt, isNull } from "drizzle-orm";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
+// BASE_URL is optional — falls back to the request host if not set.
+// Set it explicitly in production to avoid http vs https issues.
+const CONFIGURED_BASE_URL = process.env.BASE_URL ?? "";
 // Resend's shared onboarding domain — no DNS verification needed for MVP.
 // Replace with a verified domain (e.g. noreply@crawlguard.dev) once DNS is set up.
 const FROM_EMAIL = process.env.FROM_EMAIL ?? "CrawlGuard <onboarding@resend.dev>";
@@ -58,7 +60,11 @@ export async function authRoutes(app: FastifyInstance) {
       expiresAt,
     });
 
-    const magicLink = `${BASE_URL}/auth/verify?token=${token}`;
+    // Use configured BASE_URL or derive from request host
+    const proto = req.headers["x-forwarded-proto"] ?? "https";
+    const host = req.headers["host"] ?? "localhost:3000";
+    const baseUrl = CONFIGURED_BASE_URL || `${proto}://${host}`;
+    const magicLink = `${baseUrl}/auth/verify?token=${token}`;
 
     // Send email
     try {

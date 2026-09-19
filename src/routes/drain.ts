@@ -36,9 +36,6 @@ export async function drainRoutes(app: FastifyInstance) {
    */
   app.post<{ Params: { siteId: string } }>(
     "/api/drain/:siteId",
-    {
-      config: { rawBody: true },
-    },
     async (req, reply) => {
       // Always ack immediately
       reply.code(200).send({ ok: true });

@@ -25,14 +25,10 @@ async function start() {
   });
   await app.register(formbody);
 
-  // Raw body for HMAC verification (drain endpoint)
+  // Drain endpoint needs raw body (NDJSON / JSON array from Vercel)
+  // Forms are handled by formbody (application/x-www-form-urlencoded) registered above
   app.addContentTypeParser(
-    "application/x-ndjson",
-    { parseAs: "string" },
-    (req, body, done) => done(null, body)
-  );
-  app.addContentTypeParser(
-    "application/json",
+    ["application/x-ndjson", "application/json", "text/plain", "application/octet-stream"],
     { parseAs: "string" },
     (req, body, done) => done(null, body)
   );
